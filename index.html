@@ -1,134 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Weather Display</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: Arial, sans-serif;
-      display: flex;
-      height: 100vh;
-      box-sizing: border-box;
-    }
-    .main {
-      flex: 3;
-      background: #f4f4f4;
-      margin-right: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .sidebar {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    .weather, .extra {
-      flex: 1;
-      background: #fff;
-      border-radius: 8px;
-      padding: 15px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      overflow: hidden;
-    }
-    .weather h2 {
-      margin-top: 0;
-    }
-    .forecast {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-    }
-    .day {
-      text-align: center;
-      flex: 1;
-    }
-    .day img {
-      width: 50px;
-      height: 50px;
-    }
-    .current {
-      text-align: center;
-      margin-bottom: 15px;
-    }
-    .current img {
-      width: 80px;
-      height: 80px;
-    }
-    .label {
-      font-weight: bold;
-    }
-  </style>
-</head>
-<body>
-  <div class="main">
-    <h1>Main Content Area</h1>
-  </div>
-
-  <div class="sidebar">
-    <div class="weather">
-      <h2>Weather</h2>
-      <div id="current" class="current"></div>
-      <div id="forecast" class="forecast"></div>
-    </div>
-    <div class="extra">
-      <h2>Extra Content</h2>
-      <p>Something else here.</p>
-    </div>
-  </div>
-
-  <script>
-  const city = "Minneapolis, MN";
-  const weatherApiKey = "50f62cf1ee7f1a948e958602adff8dd1"; // Replace with your WeatherAPI key
-
-  async function fetchWeather() {
-    try {
-      // Fetch forecast (includes current + days)
-      const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${weatherApiKey}&q=${city}&days=4&aqi=no&alerts=no`);
-      const data = await res.json();
-
-      if (data.error) {
-        document.getElementById("current").innerHTML = "API Error: " + data.error.message;
-        return;
-      }
-
-      // Current
-      const current = document.getElementById("current");
-      current.innerHTML = `
-        <div class="label">CURRENT</div>
-        <img src="https:${data.current.condition.icon}" alt="">
-        <div>${data.current.temp_f}°F</div>
-        <div>High: ${data.forecast.forecastday[0].day.maxtemp_f}°F</div>
-        <div>Low: ${data.forecast.forecastday[0].day.mintemp_f}°F</div>
-        <div>${data.current.condition.text}</div>
-      `;
-
-      // Forecast (skip today)
-      const forecast = document.getElementById("forecast");
-      forecast.innerHTML = data.forecast.forecastday.slice(1).map(day => {
-        const date = new Date(day.date);
-        const weekday = date.toLocaleDateString("en-US", { weekday: "long" });
-        return `
-          <div class="day">
-            <div class="label">${weekday}</div>
-            <img src="https:${day.day.condition.icon}" alt="">
-            <div>High: ${day.day.maxtemp_f}°F</div>
-            <div>Low: ${day.day.mintemp_f}°F</div>
-            <div>${day.day.condition.text}</div>
-          </div>
-        `;
-      }).join("");
-    } catch (err) {
-      document.getElementById("current").innerHTML = "Network/Fetch Error";
-      console.error(err);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather Display</title>
+<style>
+  body {
+    margin: 20px; 
+    font-family: Arial, sans-serif; 
+    color: #fff; 
+    display: flex;
+    height: 100vh;
+    background: #111;
   }
 
-  fetchWeather();
-  setInterval(fetchWeather, 60 * 60 * 1000); // Refresh every 1 hour
+  #main {
+    flex: 1; 
+    background: #222;
+  }
+
+  #sidebar {
+    width: 320px; 
+    background: #000; 
+    display: flex; 
+    flex-direction: column; 
+    padding: 10px;
+  }
+
+  #weather {
+    flex: 3; 
+    background: #111; 
+    margin-bottom: 10px; 
+    padding: 10px; 
+    overflow-y: auto;
+  }
+
+  #extra {
+    flex: 1; 
+    background: #222; 
+    padding: 10px; 
+  }
+
+  #current {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  #current img { width: 80px; height: 80px; }
+  #current .label { font-weight: bold; font-size: 20px; }
+
+  #forecast {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .day {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #111;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 18px;
+  }
+
+  .day img { width: 60px; height: 60px; }
+</style>
+</head>
+<body>
+
+<div id="main">
+  <video autoplay loop muted src="yourvideo.mp4" style="width:100%; height:100%; object-fit:cover;"></video>
+</div>
+
+<div id="sidebar">
+  <div id="weather">
+    <div id="current">Loading current weather...</div>
+    <h3>3-Day Forecast</h3>
+    <div id="forecast">Loading forecast...</div>
+  </div>
+  <div id="extra">
+    <h3>Additional Info</h3>
+    <p>This is your second sidebar area. Add news, announcements, or other widgets here.</p>
+  </div>
+</div>
+
+<script>
+const lat = 45.0130;
+const lon = -93.3734;
+const apiKeys = ["3c204d7e3ce00ac9b16af90b930923f7","1784e12cf2479ca49cb1222f1b23bfd9"];
+
+async function fetchWeather() {
+  try {
+    // Fetch data from both API keys
+    const results = await Promise.all(apiKeys.map(key =>
+      fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=imperial&exclude=minutely,hourly,alerts&appid=${key}`)
+        .then(res => res.json())
+    ));
+
+    // Average current temperature and highs/lows
+    const avg = arr => arr.reduce((a,b)=>a+b,0)/arr.length;
+    const currentTemp = Math.round(avg(results.map(r=>r.current.temp)));
+    const currentHigh = Math.round(avg(results.map(r=>r.daily[0].temp.max)));
+    const currentLow = Math.round(avg(results.map(r=>r.daily[0].temp.min)));
+    const currentDesc = results[0].current.weather[0].description;
+    const currentIcon = `https://openweathermap.org/img/wn/${results[0].current.weather[0].icon}@2x.png`;
+
+    document.getElementById("current").innerHTML = `
+      <div class="label">CURRENT</div>
+      <img src="${currentIcon}" alt="${currentDesc}">
+      <div>${currentTemp}°F</div>
+      <div>High: ${currentHigh}°F</div>
+      <div>Low: ${currentLow}°F</div>
+      <div>${currentDesc}</div>
+    `;
+
+    // 3-Day Forecast (skip current day)
+    const forecastDiv = document.getElementById("forecast");
+    forecastDiv.innerHTML = "";
+    for(let i=1;i<=3;i++){
+      const dayTempMax = Math.round(avg(results.map(r=>r.daily[i].temp.max)));
+      const dayTempMin = Math.round(avg(results.map(r=>r.daily[i].temp.min)));
+      const dayDesc = results[0].daily[i].weather[0].description;
+      const dayIcon = `https://openweathermap.org/img/wn/${results[0].daily[i].weather[0].icon}@2x.png`;
+      const date = new Date(results[0].daily[i].dt*1000);
+      const weekday = date.toLocaleDateString("en-US",{weekday:"long"});
+
+      const div = document.createElement("div");
+      div.className = "day";
+      div.innerHTML = `
+        <div class="label">${weekday}</div>
+        <img src="${dayIcon}" alt="${dayDesc}">
+        <div>High: ${dayTempMax}°F</div>
+        <div>Low: ${dayTempMin}°F</div>
+        <div>${dayDesc}</div>
+      `;
+      forecastDiv.appendChild(div);
+    }
+
+  } catch(err){
+    document.getElementById("current").innerHTML = "Error loading weather";
+    document.getElementById("forecast").innerHTML = "Error loading forecast";
+    console.error(err);
+  }
+}
+
+// Initial fetch and refresh every hour
+fetchWeather();
+setInterval(fetchWeather, 60*60*1000);
 </script>
 
 </body>
