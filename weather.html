@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weather Display</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      box-sizing: border-box;
+    }
+    .main {
+      flex: 3;
+      background: #f4f4f4;
+      margin-right: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sidebar {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .weather, .extra {
+      flex: 1;
+      background: #fff;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .weather h2 {
+      margin-top: 0;
+    }
+    .forecast {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .day {
+      text-align: center;
+      flex: 1;
+    }
+    .day img {
+      width: 50px;
+      height: 50px;
+    }
+    .current {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .current img {
+      width: 80px;
+      height: 80px;
+    }
+    .label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="main">
+    <h1>Main Content Area</h1>
+  </div>
+
+  <div class="sidebar">
+    <div class="weather">
+      <h2>Weather</h2>
+      <div id="current" class="current"></div>
+      <div id="forecast" class="forecast"></div>
+    </div>
+    <div class="extra">
+      <h2>Extra Content</h2>
+      <p>Something else here.</p>
+    </div>
+  </div>
+
+  <script>
+  const city = "Minneapolis, MN";
+  const weatherApiKey = "50f62cf1ee7f1a948e958602adff8dd1"; // Replace with your WeatherAPI key
+
+  async function fetchWeather() {
+    try {
+      // Fetch forecast (includes current + days)
+      const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${weatherApiKey}&q=${city}&days=4&aqi=no&alerts=no`);
+      const data = await res.json();
+
+      if (data.error) {
+        document.getElementById("current").innerHTML = "API Error: " + data.error.message;
+        return;
+      }
+
+      // Current
+      const current = document.getElementById("current");
+      current.innerHTML = `
+        <div class="label">CURRENT</div>
+        <img src="https:${data.current.condition.icon}" alt="">
+        <div>${data.current.temp_f}°F</div>
+        <div>High: ${data.forecast.forecastday[0].day.maxtemp_f}°F</div>
+        <div>Low: ${data.forecast.forecastday[0].day.mintemp_f}°F</div>
+        <div>${data.current.condition.text}</div>
+      `;
+
+      // Forecast (skip today)
+      const forecast = document.getElementById("forecast");
+      forecast.innerHTML = data.forecast.forecastday.slice(1).map(day => {
+        const date = new Date(day.date);
+        const weekday = date.toLocaleDateString("en-US", { weekday: "long" });
+        return `
+          <div class="day">
+            <div class="label">${weekday}</div>
+            <img src="https:${day.day.condition.icon}" alt="">
+            <div>High: ${day.day.maxtemp_f}°F</div>
+            <div>Low: ${day.day.mintemp_f}°F</div>
+            <div>${day.day.condition.text}</div>
+          </div>
+        `;
+      }).join("");
+    } catch (err) {
+      document.getElementById("current").innerHTML = "Network/Fetch Error";
+      console.error(err);
+    }
+  }
+
+  fetchWeather();
+  setInterval(fetchWeather, 60 * 60 * 1000); // Refresh every 1 hour
+</script>
+
+</body>
+</html>
